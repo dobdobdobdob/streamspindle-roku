@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="HomeScene" extends="Scene">
+  <script type="text/brightscript" uri="pkg:/components/HomeScene.brs" />
+  <children>
+    <Rectangle id="background" width="1920" height="1080" color="0x1a1714FF" />
+    <Label id="channelTitle" text="StreamSpindle" font="font:LargeBoldSystemFont" color="0xFFFFFFFF" translation="[80, 60]" />
+    <Label id="loadingLabel" text="Loading..." font="font:MediumSystemFont" color="0xa09890FF" translation="[80, 200]" visible="true" />
+    <Label id="codeLabel" text="" font="font:LargeBoldSystemFont" color="0xc8a96eFF" translation="[80, 300]" visible="false" width="1760" wrap="true" />
+    <PosterGrid id="contentList" translation="[80, 160]" basePosterSize="[440, 248]" caption1NumLines="1" numColumns="4" numRows="2" itemSpacing="[20, 20]" visible="false" />
+    <Video id="videoPlayer" width="1920" height="1080" translation="[0, 0]" visible="false" />
+  </children>
+</component>

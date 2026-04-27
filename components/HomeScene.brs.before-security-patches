@@ -1,0 +1,94 @@
+sub init()
+    m.top.setFocus(true)
+    m.list = m.top.findNode("contentList")
+    m.loadingLabel = m.top.findNode("loadingLabel")
+    m.videoPlayer = m.top.findNode("videoPlayer")
+    m.videoPlayer.observeField("state", "onVideoStateChange")
+    m.token = ""
+    startSignin()
+end sub
+
+sub startSignin()
+    m.loadingLabel.text = "Connecting..."
+    m.loadingLabel.visible = true
+    m.task = CreateObject("roSGNode", "APITask")
+    m.task.observeField("result", "onSigninResult")
+    m.task.request = "signin"
+    m.task.control = "RUN"
+end sub
+
+sub onSigninResult()
+    result = m.task.result
+    if result.success = true
+        m.token = result.token
+        buildTestContent()
+    else
+        m.loadingLabel.text = "Sign in failed: " + result.error
+    end if
+end sub
+
+sub buildTestContent()
+    contentNode = CreateObject("roSGNode", "ContentNode")
+
+    item = CreateObject("roSGNode", "ContentNode")
+    item.title = "Big Buck Bunny"
+    item.description = "Test Video"
+    item.url = "https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4"
+    item.streamFormat = "mp4"
+    contentNode.appendChild(item)
+
+    item2 = CreateObject("roSGNode", "ContentNode")
+    item2.title = "Elephant Dream"
+    item2.description = "Test Video 2"
+    item2.url = "https://archive.org/download/ElephantsDream/ed_1024_512kb.mp4"
+    item2.streamFormat = "mp4"
+    contentNode.appendChild(item2)
+
+    m.list.content = contentNode
+    m.list.visible = true
+    m.loadingLabel.visible = false
+    m.list.setFocus(true)
+end sub
+
+sub onVideoStateChange()
+    state = m.videoPlayer.state
+    if state = "finished" or state = "error"
+        m.loadingLabel.text = "State: " + state + " Code: " + m.videoPlayer.errorCode.toStr()
+        m.loadingLabel.visible = true
+        m.videoPlayer.visible = false
+        m.videoPlayer.control = "stop"
+        m.list.visible = true
+        m.list.setFocus(true)
+    end if
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if press then
+        if m.videoPlayer.visible = true
+            if key = "back"
+                m.videoPlayer.visible = false
+                m.videoPlayer.control = "stop"
+                m.list.visible = true
+                m.list.setFocus(true)
+                return true
+            end if
+        else
+            if key = "OK" or key = "play"
+                selectedItem = m.list.content.getChild(m.list.itemFocused)
+                if selectedItem <> invalid and selectedItem.url <> ""
+                    videoContent = CreateObject("roSGNode", "ContentNode")
+                    videoContent.url = selectedItem.url
+                    videoContent.streamFormat = "mp4"
+                    videoContent.title = selectedItem.title
+                    m.videoPlayer.content = videoContent
+                    m.videoPlayer.visible = true
+                    m.videoPlayer.control = "play"
+                    m.videoPlayer.setFocus(true)
+                    m.list.visible = false
+                end if
+                return true
+            end if
+        end if
+    end if
+    return false
+end function
